@@ -1,6 +1,6 @@
 // const express = require("express");
 // // const mysql = require("mysql2");
-// // const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 // // const bcrypt = require("bcrypt");
 // const bodyParser = require("body-parser");
 // const app = express();
@@ -38,6 +38,11 @@ router.post("/Employees/register", async (req, res) => {
   router.post("/login", async (req, res) => {
     try {
       const { Email, Password } = req.body;
+  
+      if (!Email || !Password) {
+        return res.status(400).json({ error: "Email and Password are required" });
+      }
+  
       const getUserQuery = "SELECT * FROM Employees WHERE Email = ? AND Password = ?";
       const [rows] = await db.promise().execute(getUserQuery, [Email, Password]);
   
@@ -68,6 +73,7 @@ router.post("/Employees/register", async (req, res) => {
     } catch (error) {
       console.error("Error logging in user:", error);
       res.status(500).json({ error: "Internal Server Error" });
+      console.log(error)
     }
   });
 
@@ -77,20 +83,20 @@ router.post("/Employees/register", async (req, res) => {
   //     const { Email, Password} = req.body;
   //     const getUserQuery = "SELECT * FROM Employees WHERE Email = ?, Password = ?";
   //     const [rows] = await db.promise().execute(getUserQuery, [Email, Password]);
-    //   if (rows.length === 0) {
-    //     return res.status(401).json({ error: "Invalid username" });
-    //   }
-    //   const user = rows[0];
-    //   let passwordMatch = false;
+  //     if (rows.length === 0) {
+  //       return res.status(401).json({ error: "Invalid username" });
+  //     }
+  //     const user = rows[0];
+  //     let passwordMatch = false;
      
-    //   if (user.Password.startsWith("$2b$") || user.Password.startsWith("$2a$")) {
-    //     passwordMatch = await bcrypt.compare(Password, user.Password);
-    //   } else {
-    //     passwordMatch = (Password === user.Password);
-    //   }
-    //   if (!passwordMatch) {
-    //     return res.status(401).json({ error: "Invalid username or Password" });
-    //   }
+  //     if (user.Password.startsWith("$2b$") || user.Password.startsWith("$2a$")) {
+  //       passwordMatch = await bcrypt.compare(Password, user.Password);
+  //     } else {
+  //       passwordMatch = (Password === user.Password);
+  //     }
+  //     if (!passwordMatch) {
+  //       return res.status(401).json({ error: "Invalid username or Password" });
+  //     }
   //     const token = jsonwebtoken.sign(
   //       { 
         
