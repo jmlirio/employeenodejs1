@@ -37,45 +37,34 @@ router.post("/Employees/register", async (req, res) => {
 
   router.post("/login", async (req, res) => {
     try {
-      const { Email, Password } = req.body;
-  
-      if (!Email || !Password) {
-        return res.status(400).json({ error: "Email and Password are required" });
-      }
-  
-      const getUserQuery = "SELECT * FROM Employees WHERE Email = ? AND Password = ?";
+      const { Email, Password} = req.body;
+      const getUserQuery = "SELECT * FROM Employees WHERE Email = ?, Password = ?";
       const [rows] = await db.promise().execute(getUserQuery, [Email, Password]);
-  
-      if (rows.length === 0) {
-        return res.status(401).json({ error: "Invalid username or password" });
-      }
-  
-      const user = rows[0];
-      let passwordMatch = false;
-  
-      if (user.Password.startsWith("$2b$") || user.Password.startsWith("$2a$")) {
-        passwordMatch = await bcrypt.compare(Password, user.Password);
-      } else {
-        passwordMatch = Password === user.Password;
-      }
-  
-      if (!passwordMatch) {
-        return res.status(401).json({ error: "Invalid username or password" });
-      }
-  
-      const token = jwt.sign(
-        { userid: user.id, Email: user.Email },
-        getSecretKey(),
+   
+      const token = jsonwebtoken.sign(
+        { 
+        
+            FirstName: rows[0].FirstName, 
+            LastName : rows[0].LastName, 
+            Email : rows[0].Email, 
+            Password: rows[0].Password,
+            Phone: rows[0].Phone, 
+            DepartmentID:rows[0].DepartmentID, 
+            PositionID:rows[0].PositionID
+        
+        },
+        process.env.SECRETKEY,
         { expiresIn: "1h" }
       );
-  
       res.status(200).json({ token });
     } catch (error) {
       console.error("Error logging in user:", error);
       res.status(500).json({ error: "Internal Server Error" });
       console.log(error)
     }
-  });
+  }); 
+
+
 
 
   // router.post("/login", async (req, res) => {
